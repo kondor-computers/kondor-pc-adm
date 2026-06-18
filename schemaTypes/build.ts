@@ -1,5 +1,12 @@
 import {defineField, defineType} from 'sanity'
 
+const imageAltField = defineField({
+  name: 'alt',
+  title: 'Альтернативний текст',
+  type: 'string',
+  description: 'Важливо для SEO та доступності',
+})
+
 const configOption = {
   type: 'object',
   title: 'Варіант',
@@ -372,13 +379,14 @@ export const build = defineType({
       type: 'image',
       group: 'media',
       options: {hotspot: true},
+      fields: [imageAltField],
     }),
     defineField({
       name: 'gallery',
       title: 'Галерея',
       type: 'array',
       group: 'media',
-      of: [{type: 'image', options: {hotspot: true}}],
+      of: [{type: 'image', options: {hotspot: true}, fields: [imageAltField]}],
     }),
     defineField({
       name: 'assemblyVideoUrl',
@@ -393,6 +401,7 @@ export const build = defineType({
       type: 'image',
       group: 'media',
       options: {hotspot: true},
+      fields: [imageAltField],
     }),
     defineField({
       name: 'assemblyVideoUploadDate',
@@ -417,6 +426,7 @@ export const build = defineType({
       group: 'media',
       options: {hotspot: true},
       description: 'Превʼю для відео в секції реальних тестів.',
+      fields: [imageAltField],
     }),
     defineField({
       name: 'gameplayVideoUploadDate',
@@ -470,6 +480,7 @@ export const build = defineType({
               type: 'image',
               options: {hotspot: true},
               description: 'Показується у великій картці відгуку на головній та на сторінці ПК.',
+              fields: [imageAltField],
             }),
             defineField({
               name: 'rating',

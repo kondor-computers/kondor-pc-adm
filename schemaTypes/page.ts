@@ -74,6 +74,7 @@ export const page = defineType({
         {type: 'anchorNav'},
         {type: 'statsStrip'},
         {type: 'textBlock'},
+        {type: 'tableSection'},
         {type: 'imageFull'},
         {type: 'imageTextSplit'},
         {type: 'featureList'},

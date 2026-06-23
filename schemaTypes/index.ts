@@ -40,6 +40,7 @@ import {mediaVideo} from './sections/mediaVideo'
 import {statsStrip} from './sections/statsStrip'
 import {faqAccordion} from './sections/faqAccordion'
 import {ctaPromoBanner} from './sections/ctaPromoBanner'
+import {tableSection} from './sections/tableSection'
 
 export const schemaTypes = [
   // documents
@@ -73,4 +74,5 @@ export const schemaTypes = [
   statsStrip,
   faqAccordion,
   ctaPromoBanner,
+  tableSection,
 ]

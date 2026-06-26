@@ -298,6 +298,84 @@ export const build = defineType({
       description: 'Напр. 1 рік (базова) → 2 роки (+3 500 ₴) → 3 роки (+6 500 ₴).',
       of: [configOption],
     }),
+    defineField({
+      name: 'availableAddons',
+      title: 'Додаткові опції',
+      type: 'array',
+      group: 'options',
+      description:
+        'Оберіть опції з довідника «➕ Додаткові опції». ' +
+        'Ціна та опис — у картці опції; тут можна перевизначити ціну або позначити як включену.',
+      of: [
+        {
+          type: 'object',
+          title: 'Опція на збірці',
+          fields: [
+            defineField({
+              name: 'addon',
+              title: 'Опція',
+              type: 'reference',
+              to: [{type: 'buildAddon'}],
+              options: {
+                filter: 'isActive != false',
+              },
+              validation: (R) => R.required(),
+            }),
+            defineField({
+              name: 'priceOverride',
+              title: 'Ціна для цієї збірки (₴)',
+              type: 'number',
+              description:
+                'Якщо порожньо — береться базова ціна з довідника. 0 — без доплати.',
+              validation: (R) => R.min(0),
+            }),
+            defineField({
+              name: 'isIncluded',
+              title: 'Включено в базову комплектацію',
+              type: 'boolean',
+              description: 'Опція вже є в збірці — доплата 0 ₴, показується як включена.',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'sortOrder',
+              title: 'Порядок на цій збірці',
+              type: 'number',
+              description: 'Менше = вище. Якщо порожньо — порядок з довідника.',
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'addon.title',
+              key: 'addon.key',
+              priceUah: 'addon.priceUah',
+              priceOverride: 'priceOverride',
+              isIncluded: 'isIncluded',
+            },
+            prepare({
+              title,
+              key,
+              priceUah,
+              priceOverride,
+              isIncluded,
+            }: Record<string, any>) {
+              const price = isIncluded
+                ? 'включено'
+                : priceOverride != null
+                  ? priceOverride === 0
+                    ? 'безкоштовно'
+                    : `+${priceOverride.toLocaleString('uk')} ₴`
+                  : priceUah === 0
+                    ? 'безкоштовно'
+                    : `+${priceUah?.toLocaleString('uk')} ₴`
+              return {
+                title: title ?? 'Без назви',
+                subtitle: key ? `${key} · ${price}` : price,
+              }
+            },
+          },
+        },
+      ],
+    }),
 
     // ─── COMPONENTS ────────────────────────────────────────
     defineField({

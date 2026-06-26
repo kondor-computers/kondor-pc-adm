@@ -117,6 +117,13 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
             .title('Переваги')
             .defaultOrdering([{field: 'sortOrder', direction: 'asc'}]),
         ),
+      S.listItem()
+        .title('➕ Додаткові опції')
+        .child(
+          S.documentTypeList('buildAddon')
+            .title('Додаткові опції')
+            .defaultOrdering([{field: 'sortOrder', direction: 'asc'}]),
+        ),
       S.listItem().title('💾 GPU').child(S.documentTypeList('gpu')),
       S.listItem().title('🎮 Ігри').child(S.documentTypeList('game')),
     ])

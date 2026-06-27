@@ -15,14 +15,14 @@ const configOption = {
       name: 'id',
       title: 'ID (slug)',
       type: 'string',
-      description: 'Стабільний ключ, напр. ram-32, ssd-1tb, warranty-2y',
+      description: 'Стабільний ключ, напр. ssd-1tb, warranty-2y',
       validation: (R) => R.required(),
     }),
     defineField({
       name: 'label',
       title: 'Назва варіанту',
       type: 'string',
-      description: 'Напр. «32 GB DDR5», «1 TB NVMe»',
+      description: 'Напр. «1 TB NVMe», «2 роки гарантії»',
       validation: (R) => R.required(),
     }),
     defineField({
@@ -56,6 +56,176 @@ const configOption = {
               ? 'включено (за замовч.)'
               : 'включено'
             : `+${priceDelta.toLocaleString('uk')} ₴`,
+      }
+    },
+  },
+}
+
+const catalogConfigPreview = (
+  title: string | undefined,
+  priceUah: number | undefined,
+  isDefault: boolean | undefined,
+  subtitleExtra?: string,
+) => {
+  const price = isDefault
+    ? 'включено (за замовч.)'
+    : priceUah === 0
+      ? 'включено'
+      : `+${priceUah?.toLocaleString('uk')} ₴`
+  return {
+    title: title ?? 'Без назви',
+    subtitle: subtitleExtra ? `${subtitleExtra} · ${price}` : price,
+  }
+}
+
+const cpuConfigOption = {
+  type: 'object',
+  title: 'Варіант CPU',
+  fields: [
+    defineField({
+      name: 'cpu',
+      title: 'Процесор',
+      type: 'reference',
+      to: [{type: 'cpu'}],
+      description: 'Назва та доплата беруться з картки процесора.',
+      validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'id',
+      title: 'ID (slug)',
+      type: 'string',
+      description: 'Стабільний ключ, напр. ryzen-7-7700',
+      validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'description',
+      title: 'Опис',
+      type: 'string',
+    }),
+    defineField({
+      name: 'isDefault',
+      title: 'Обрано за замовчуванням',
+      type: 'boolean',
+      initialValue: false,
+    }),
+  ],
+  preview: {
+    select: {
+      isDefault: 'isDefault',
+      brand: 'cpu.brand',
+      model: 'cpu.model',
+      priceUah: 'cpu.priceUah',
+    },
+    prepare({brand, model, priceUah, isDefault}: Record<string, any>) {
+      const title = brand && model ? `${brand} ${model}` : undefined
+      return catalogConfigPreview(title, priceUah, isDefault)
+    },
+  },
+}
+
+const ramConfigOption = {
+  type: 'object',
+  title: 'Варіант RAM',
+  fields: [
+    defineField({
+      name: 'ram',
+      title: "Оперативна пам'ять",
+      type: 'reference',
+      to: [{type: 'ram'}],
+      description: 'Назва та доплата беруться з картки RAM.',
+      validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'id',
+      title: 'ID (slug)',
+      type: 'string',
+      description: 'Стабільний ключ, напр. ram-32-ddr5',
+      validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'description',
+      title: 'Опис',
+      type: 'string',
+    }),
+    defineField({
+      name: 'isDefault',
+      title: 'Обрано за замовчуванням',
+      type: 'boolean',
+      initialValue: false,
+    }),
+  ],
+  preview: {
+    select: {
+      isDefault: 'isDefault',
+      title: 'ram.title',
+      memoryType: 'ram.memoryType',
+      priceUah: 'ram.priceUah',
+    },
+    prepare({title, memoryType, priceUah, isDefault}: Record<string, any>) {
+      const type = memoryType ? String(memoryType).toUpperCase() : undefined
+      return catalogConfigPreview(title, priceUah, isDefault, type)
+    },
+  },
+}
+
+const gpuConfigOption = {
+  type: 'object',
+  title: 'Варіант GPU',
+  fields: [
+    defineField({
+      name: 'gpu',
+      title: 'Відеокарта',
+      type: 'reference',
+      to: [{type: 'gpu'}],
+      description: 'Назва, FPS та доплата беруться з картки відеокарти.',
+      validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'id',
+      title: 'ID (slug)',
+      type: 'string',
+      description: 'Стабільний ключ, напр. rtx-5070, rtx-5080',
+      validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'description',
+      title: 'Опис',
+      type: 'string',
+    }),
+    defineField({
+      name: 'isDefault',
+      title: 'Обрано за замовчуванням',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'fpsCoefficient',
+      title: 'Коефіцієнт FPS',
+      type: 'number',
+      description:
+        'Множник для FPS відеокарти. 1.0 = без змін. 0.9 = -10% (слабший CPU). 1.05 = +5% (OC).',
+      initialValue: 1.0,
+      validation: (R) => R.required().min(0.1).max(2.0),
+    }),
+  ],
+  preview: {
+    select: {
+      isDefault: 'isDefault',
+      brand: 'gpu.brand',
+      model: 'gpu.model',
+      vram: 'gpu.vram',
+      priceUah: 'gpu.priceUah',
+    },
+    prepare({brand, model, vram, priceUah, isDefault}: Record<string, any>) {
+      const price = isDefault
+        ? 'включено (за замовч.)'
+        : priceUah === 0
+          ? 'включено'
+          : `+${priceUah?.toLocaleString('uk')} ₴`
+      const title = brand && model ? `${brand} ${model}` : 'Без назви'
+      return {
+        title,
+        subtitle: vram ? `${vram} · ${price}` : price,
       }
     },
   },
@@ -156,7 +326,7 @@ export const build = defineType({
       name: 'priceUah',
       title: 'Базова ціна (₴)',
       type: 'number',
-      description: 'Ціна без доплат за конфігуратор (RAM, SSD, гарантія).',
+      description: 'Ціна без доплат за конфігуратор (CPU, GPU, RAM, SSD, гарантія).',
       group: 'main',
       validation: (R) => R.required().min(0),
     }),
@@ -204,56 +374,6 @@ export const build = defineType({
       validation: (R) => R.required(),
     }),
     defineField({
-      name: 'cpu',
-      title: 'Процесор',
-      type: 'string',
-      description: 'Напр. Ryzen 5 7400F',
-      group: 'spec',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'gpu',
-      title: 'Відеокарта',
-      type: 'reference',
-      to: [{type: 'gpu'}],
-      group: 'spec',
-      description: 'Обрати зі списку. FPS показники беруться з картки відеокарти.',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'fpsCoefficient',
-      title: 'Коефіцієнт FPS',
-      type: 'number',
-      group: 'spec',
-      description:
-        'Множник для FPS відеокарти. 1.0 = без змін. 0.9 = -10% (слабший CPU). 1.05 = +5% (OC).',
-      initialValue: 1.0,
-      validation: (R) => R.required().min(0.1).max(2.0),
-    }),
-    defineField({
-      name: 'baseRam',
-      title: "Оперативна пам'ять (базова)",
-      type: 'string',
-      description: 'Базова конфігурація, включена в ціну. Напр. «32 GB DDR5»',
-      group: 'spec',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'ramSpeed',
-      title: 'Швидкість RAM (МГц)',
-      type: 'string',
-      description: 'Напр. 6000',
-      group: 'spec',
-    }),
-    defineField({
-      name: 'baseStorage',
-      title: 'Накопичувач (базовий)',
-      type: 'string',
-      description: 'Базова конфігурація, включена в ціну. Напр. «500 GB NVMe»',
-      group: 'spec',
-      validation: (R) => R.required(),
-    }),
-    defineField({
       name: 'powerConsumptionW',
       title: 'Споживання енергії (Вт)',
       type: 'number',
@@ -275,12 +395,31 @@ export const build = defineType({
 
     // ─── CONFIGURABLE OPTIONS ──────────────────────────────
     defineField({
+      name: 'cpuOptions',
+      title: 'Варіанти процесора',
+      type: 'array',
+      group: 'options',
+      description:
+        'Оберіть процесори з довідника. Доплата — у картці CPU. Один варіант має isDefault = true.',
+      of: [cpuConfigOption],
+    }),
+    defineField({
+      name: 'gpuOptions',
+      title: 'Варіанти відеокарти',
+      type: 'array',
+      group: 'options',
+      description:
+        'Оберіть відеокарти з довідника. Доплата — у картці GPU. Один варіант має isDefault = true.',
+      of: [gpuConfigOption],
+    }),
+    defineField({
       name: 'ramOptions',
       title: "Варіанти оперативної пам'яті",
       type: 'array',
       group: 'options',
-      description: 'Напр. 32 GB (базова) → 64 GB (+3 000 ₴). Один варіант має isDefault = true.',
-      of: [configOption],
+      description:
+        'Оберіть комплекти RAM з довідника. Доплата — у картці RAM. Один варіант має isDefault = true.',
+      of: [ramConfigOption],
     }),
     defineField({
       name: 'ssdOptions',
@@ -346,14 +485,14 @@ export const build = defineType({
           preview: {
             select: {
               title: 'addon.title',
-              key: 'addon.key',
+              sku: 'addon.sku.current',
               priceUah: 'addon.priceUah',
               priceOverride: 'priceOverride',
               isIncluded: 'isIncluded',
             },
             prepare({
               title,
-              key,
+              sku,
               priceUah,
               priceOverride,
               isIncluded,
@@ -369,7 +508,7 @@ export const build = defineType({
                     : `+${priceUah?.toLocaleString('uk')} ₴`
               return {
                 title: title ?? 'Без назви',
-                subtitle: key ? `${key} · ${price}` : price,
+                subtitle: sku ? `${sku} · ${price}` : price,
               }
             },
           },

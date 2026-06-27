@@ -125,5 +125,7 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
             .defaultOrdering([{field: 'sortOrder', direction: 'asc'}]),
         ),
       S.listItem().title('💾 GPU').child(S.documentTypeList('gpu')),
+      S.listItem().title('🧠 CPU').child(S.documentTypeList('cpu')),
+      S.listItem().title('🧩 RAM').child(S.documentTypeList('ram')),
       S.listItem().title('🎮 Ігри').child(S.documentTypeList('game')),
     ])

@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {catalogSkuField} from './lib/catalogSku'
 
 /**
  * Build addon — reusable catalog entry for PC configurator extras
@@ -10,24 +11,15 @@ export const buildAddon = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'key',
-      title: 'ID (ключ)',
-      type: 'string',
-      description:
-        'Стабільний ключ для фронтенду (wifi-module · bluetooth · psu-850w). ' +
-        'Використовується в кошику та CRM.',
-      validation: (rule) =>
-        rule
-          .required()
-          .regex(/^[a-z0-9-]+$/, {name: 'kebab-case-ascii'})
-          .error('Тільки латиниця, цифри, дефіс (наприклад: wifi-module, psu-850w).'),
-    }),
-    defineField({
       name: 'title',
       title: 'Назва',
       type: 'string',
       description: 'Напр. «WiFi модуль», «Блок живлення 850W».',
       validation: (rule) => rule.required().min(2).max(120),
+    }),
+    catalogSkuField({
+      source: 'title',
+      description: 'Напр. WIFI-MODULE. Generate — з назви. Використовується в кошику та CRM.',
     }),
     defineField({
       name: 'description',
@@ -105,12 +97,12 @@ export const buildAddon = defineType({
   preview: {
     select: {
       title: 'title',
-      key: 'key',
+      sku: 'sku.current',
       priceUah: 'priceUah',
       category: 'category',
       isActive: 'isActive',
     },
-    prepare({title, key, priceUah, category, isActive}) {
+    prepare({title, sku, priceUah, category, isActive}) {
       const categoryLabels: Record<string, string> = {
         network: 'Мережа',
         power: 'Живлення',
@@ -124,7 +116,7 @@ export const buildAddon = defineType({
       const status = isActive === false ? ' · вимкнено' : ''
       return {
         title: title ?? 'Без назви',
-        subtitle: `${key} · ${categoryLabels[category] ?? category} · ${price}${status}`,
+        subtitle: `${sku} · ${categoryLabels[category] ?? category} · ${price}${status}`,
       }
     },
   },

@@ -1,5 +1,7 @@
 // === Існуючі (НЕ ЧІПАЄМО) ===
 import {gpu} from './gpu'
+import {cpu} from './cpu'
+import {ram} from './ram'
 import {build} from './build'
 import {buildBenefit} from './buildBenefit'
 import {buildAddon} from './buildAddon'
@@ -49,6 +51,8 @@ export const schemaTypes = [
   buildBenefit,
   buildAddon,
   gpu,
+  cpu,
+  ram,
   game,
   page,
   promoCode,

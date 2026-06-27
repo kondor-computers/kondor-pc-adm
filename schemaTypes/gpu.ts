@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { catalogSkuField } from "./lib/catalogSku";
 
 type FpsRow = {
   game?: { _ref?: string };
@@ -31,12 +32,26 @@ export const gpu = defineType({
       description: "Напр. RTX 5060, RX 7600 XT",
       validation: (R) => R.required(),
     }),
+    catalogSkuField({
+      source: (doc) => [doc.brand, doc.model].filter(Boolean).join(" "),
+      description: "Напр. NVIDIA-RTX-5070-12GB. Generate — з бренду та моделі.",
+    }),
     defineField({
       name: "vram",
       title: "VRAM",
       type: "string",
       description: "Напр. 8 GB, 16 GB",
       validation: (R) => R.required(),
+    }),
+    defineField({
+      name: "priceUah",
+      title: "Доплата в конфігураторі (₴)",
+      type: "number",
+      description:
+        "Доплата при виборі цієї відеокарти. 0 — базовий рівень. " +
+        "На збірці ціна не дублюється — оновлюється тільки тут.",
+      initialValue: 0,
+      validation: (R) => R.required().min(0),
     }),
     defineField({
       name: "fps",
@@ -145,11 +160,15 @@ export const gpu = defineType({
       brand: "brand",
       model: "model",
       vram: "vram",
+      sku: "sku.current",
+      priceUah: "priceUah",
     },
-    prepare({ brand, model, vram }) {
+    prepare({ brand, model, vram, sku, priceUah }) {
+      const price =
+        priceUah === 0 ? "включено" : `+${priceUah?.toLocaleString("uk")} ₴`;
       return {
         title: `${brand} ${model}`,
-        subtitle: vram,
+        subtitle: sku ? `${sku} · ${vram} · ${price}` : `${vram} · ${price}`,
       };
     },
   },

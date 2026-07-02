@@ -19,6 +19,22 @@ const configOption = {
       validation: (R) => R.required(),
     }),
     defineField({
+      name: 'sku',
+      title: 'SKU (артикул)',
+      type: 'string',
+      description:
+        'Глобальний артикул для синхронізації цін і CRM. ' +
+        'Напр. KPC-SSD-1TB, KPC-WARRANTY-2Y. Для базового варіанту (доплата 0) — опційно.',
+      validation: (R) =>
+        R.custom((value) => {
+          if (!value) return true
+          if (!/^[A-Z0-9-]+$/.test(value)) {
+            return 'Тільки великі латинські літери, цифри та дефіс (наприклад: KPC-SSD-1TB).'
+          }
+          return true
+        }),
+    }),
+    defineField({
       name: 'label',
       title: 'Назва варіанту',
       type: 'string',
@@ -46,16 +62,17 @@ const configOption = {
     }),
   ],
   preview: {
-    select: {label: 'label', priceDelta: 'priceDelta', isDefault: 'isDefault'},
-    prepare({label, priceDelta, isDefault}: Record<string, any>) {
+    select: {label: 'label', sku: 'sku', priceDelta: 'priceDelta', isDefault: 'isDefault'},
+    prepare({label, sku, priceDelta, isDefault}: Record<string, any>) {
+      const price =
+        priceDelta === 0
+          ? isDefault
+            ? 'включено (за замовч.)'
+            : 'включено'
+          : `+${priceDelta.toLocaleString('uk')} ₴`
       return {
         title: label,
-        subtitle:
-          priceDelta === 0
-            ? isDefault
-              ? 'включено (за замовч.)'
-              : 'включено'
-            : `+${priceDelta.toLocaleString('uk')} ₴`,
+        subtitle: sku ? `${sku} · ${price}` : price,
       }
     },
   },

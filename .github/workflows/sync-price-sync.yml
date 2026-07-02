@@ -1,0 +1,28 @@
+name: Sync PRICE_SYNC to Sanity
+
+on:
+  schedule:
+    # 00:00 за Києвом ≈ 21:00 UTC (влітку, DST); GitHub Actions cron працює лише в UTC,
+    # тож взимку (без DST) фактичний час зсунеться на ~1 год пізніше (01:00 замість 00:00).
+    - cron: '0 21 * * SUN'
+  workflow_dispatch: {}
+
+concurrency:
+  group: sync-price-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Sync prices to Sanity (apply)
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SPREADSHEET_ID: ${{ secrets.GOOGLE_SPREADSHEET_ID }}
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+        run: node tools/sync-price-sync-to-sanity.mjs --apply

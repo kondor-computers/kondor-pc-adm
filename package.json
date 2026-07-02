@@ -11,7 +11,8 @@
     "dev": "sanity dev",
     "start": "sanity start",
     "sync:price-sync": "node tools/sync-price-sync-to-sanity.mjs",
-    "sync:price-sync-keycrm": "node tools/sync-price-sync-to-keycrm.mjs"
+    "sync:price-sync-keycrm": "node tools/sync-price-sync-to-keycrm.mjs",
+    "notify:price-sync": "node tools/notify-price-sync.mjs"
   },
   "keywords": [
     "sanity"

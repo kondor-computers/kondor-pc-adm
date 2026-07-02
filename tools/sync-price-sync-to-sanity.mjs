@@ -10,7 +10,14 @@
  *   source .env.local && npm run sync:price-sync -- --apply   # реальний запис
  *                                                              # (потрібен SANITY_API_TOKEN з правом write)
  */
+import fs from 'node:fs/promises'
 import {getGoogleAccessToken} from './lib/google-sheets.mjs'
+
+async function writeGithubOutput(applied, skipped) {
+  const outputPath = process.env.GITHUB_OUTPUT
+  if (!outputPath) return
+  await fs.appendFile(outputPath, `applied=${applied}\nskipped=${skipped}\n`)
+}
 
 const PROJECT_ID = 'if6dzz62'
 const DATASET = 'production'
@@ -218,11 +225,13 @@ async function main() {
   if (!writeToken) throw new Error('SANITY_API_TOKEN не задано — потрібен токен Sanity з правом Editor/write')
   if (!plan.length) {
     console.log('Немає змін для запису — Sanity вже відповідає PRICE_SYNC.')
+    await writeGithubOutput(0, skipped.length)
     return
   }
 
   const result = await applyMutations(plan, writeToken)
   console.log(`Застосовано мутацій: ${plan.length}. transactionId: ${result.transactionId}`)
+  await writeGithubOutput(plan.length, skipped.length)
 }
 
 main().catch((err) => {

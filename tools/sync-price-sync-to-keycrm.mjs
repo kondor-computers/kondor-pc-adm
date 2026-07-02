@@ -15,9 +15,16 @@
  *   source .env.local && npm run sync:price-sync-keycrm -- --apply   # реальний запис
  *                                                                     # (потрібен KEY_CRM_API_KEY)
  */
+import fs from 'node:fs/promises'
 import {getGoogleAccessToken} from './lib/google-sheets.mjs'
 
 const KEYCRM_API_URL = 'https://openapi.keycrm.app/v1'
+
+async function writeGithubOutput(applied, skipped) {
+  const outputPath = process.env.GITHUB_OUTPUT
+  if (!outputPath) return
+  await fs.appendFile(outputPath, `applied=${applied}\nskipped=${skipped}\n`)
+}
 const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || '1Br42_sUkqER9o7WrMJ5yM6bejThwsnbAaDaRQfg9MdY'
 
 function parseSheetPrice(raw) {
@@ -172,11 +179,13 @@ async function main() {
 
   if (!plan.length) {
     console.log('Немає змін для запису — KeyCRM вже відповідає PRICE_SYNC.')
+    await writeGithubOutput(0, skipped.length)
     return
   }
 
   const applied = await applyMutations(plan)
   console.log(`Застосовано оновлень: ${applied}.`)
+  await writeGithubOutput(applied, skipped.length)
 }
 
 main().catch((err) => {

@@ -21,14 +21,36 @@ jobs:
           node-version: 20
       - run: npm ci
       - name: Sync prices to Sanity (apply)
+        id: sync_sanity
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SPREADSHEET_ID: ${{ secrets.GOOGLE_SPREADSHEET_ID }}
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
         run: node tools/sync-price-sync-to-sanity.mjs --apply
       - name: Sync prices to KeyCRM (apply)
+        id: sync_keycrm
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SPREADSHEET_ID: ${{ secrets.GOOGLE_SPREADSHEET_ID }}
           KEY_CRM_API_KEY: ${{ secrets.KEY_CRM_API_KEY }}
         run: node tools/sync-price-sync-to-keycrm.mjs --apply
+      - name: Notify Telegram (success)
+        if: success()
+        env:
+          TELEGRAM_BOT_ID: ${{ secrets.TELEGRAM_BOT_ID }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SYNC_STATUS: success
+          SANITY_APPLIED: ${{ steps.sync_sanity.outputs.applied }}
+          SANITY_SKIPPED: ${{ steps.sync_sanity.outputs.skipped }}
+          KEYCRM_APPLIED: ${{ steps.sync_keycrm.outputs.applied }}
+          KEYCRM_SKIPPED: ${{ steps.sync_keycrm.outputs.skipped }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node tools/notify-price-sync.mjs
+      - name: Notify Telegram (failure)
+        if: failure()
+        env:
+          TELEGRAM_BOT_ID: ${{ secrets.TELEGRAM_BOT_ID }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SYNC_STATUS: failure
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node tools/notify-price-sync.mjs

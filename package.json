@@ -10,7 +10,8 @@
     "deploy-graphql": "sanity graphql deploy",
     "dev": "sanity dev",
     "start": "sanity start",
-    "sync:price-sync": "node tools/sync-price-sync-to-sanity.mjs"
+    "sync:price-sync": "node tools/sync-price-sync-to-sanity.mjs",
+    "sync:price-sync-keycrm": "node tools/sync-price-sync-to-keycrm.mjs"
   },
   "keywords": [
     "sanity"

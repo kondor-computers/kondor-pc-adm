@@ -332,6 +332,15 @@ export const build = defineType({
       description: 'Якщо увімкнено — збірка потрапляє в блок топ-3 на головній сторінці сайту.',
     }),
     defineField({
+      name: 'showInFeed',
+      title: 'Показувати в фіді Meta',
+      type: 'boolean',
+      group: 'main',
+      initialValue: false,
+      description:
+        'Так: збірка потрапляє у товарний фід Meta (Facebook/Instagram Catalog). Ні: у фіді її немає. Збірки зі статусом «Архів» у фід не потрапляють.',
+    }),
+    defineField({
       name: 'shortTagline',
       title: 'Короткий слоган',
       type: 'string',

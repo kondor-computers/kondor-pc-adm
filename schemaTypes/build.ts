@@ -333,12 +333,12 @@ export const build = defineType({
     }),
     defineField({
       name: 'showInFeed',
-      title: 'Показувати в фіді Meta',
+      title: 'Показувати в фіді Meta і Google',
       type: 'boolean',
       group: 'main',
       initialValue: false,
       description:
-        'Так: збірка потрапляє у товарний фід Meta (Facebook/Instagram Catalog). Ні: у фіді її немає. Збірки зі статусом «Архів» у фід не потрапляють.',
+        'Так: збірка потрапляє у товарні фіди Meta (Facebook/Instagram Catalog) і Google Merchant Center. Ні: у фідах її немає. Збірки зі статусом «Архів» у фіди не потрапляють.',
     }),
     defineField({
       name: 'shortTagline',
